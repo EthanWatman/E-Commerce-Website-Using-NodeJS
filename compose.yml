@@ -1,0 +1,68 @@
+services:
+  commerce-app:
+    container_name: commerce-app
+    image: commerce-website
+    build: .
+    depends_on:
+      - mongo
+    ports:
+      - "3000:3000"
+    volumes:
+      - mongodata:/node_modules/mongoose/lib/connection.js
+    networks:
+      - frontend
+      - backend
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/mydatabase
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - mongodata:/data/db
+      - ./seedDB.js:/docker-entrypoint-initdb.d/seedDB.js
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    build: .
+    depends_on:
+      - mongo
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+    networks:
+      - frontend
+      - backend
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    build: .
+    depends_on:
+      - commerce-app
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - frontend
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl/localhost.crt:/etc/ssl/certs/localhost.crt
+      - ./ssl/localhost.key:/etc/ssl/private/localhost.key
+
+volumes:
+  mongodata:
+
+
+
+networks:
+  backend:
+    internal: true
+  frontend:

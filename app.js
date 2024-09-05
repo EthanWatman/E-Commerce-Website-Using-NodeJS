@@ -13,10 +13,10 @@ const LocalStrategy = require('passport-local');
 const User = require('./models/user');
 const authRoutes = require('./routes/auth/auth');
 const cartRoutes = require('./routes/cart/cart');
+const uri = 'mongodb://mongo:27017/mydatabase';
+const uri-services = 'mongodb://mongo-service:27017/mydatabase'; //Using Kubectl
 
-
-
-mongoose.connect('mongodb://localhost:27017/shopping-cart', 
+mongoose.connect(uri, 
     {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -55,7 +55,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// seedDB();
+seedDB();
 
 app.get('/', (req, res) => {
     res.render('landingPage');
